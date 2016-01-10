@@ -18,7 +18,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #ifndef ALEWRAP_H
 #define ALEWRAP_H
 
-#include <xitari/ale_interface.hpp>
+//#include <ale/ale_interface.hpp>
+#include <ale_interface.hpp>
 
 typedef ale::ALEInterface ALEInterface;
 

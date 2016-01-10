@@ -9,7 +9,7 @@ description = {
   summary = "Alewrap"
 }
 
-dependencies = { 'xitari','image','paths'}
+dependencies = { 'ale','image','paths'}
 build = {
    type = "command",
    build_command = [[

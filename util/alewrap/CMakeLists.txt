@@ -28,11 +28,10 @@ ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     MESSAGE(STATUS "Using Visual Studio C++")
 ENDIF()
 
-
 # We are building alewraplib.
 # We specify the paths to ALE includes and libale.
 # INCLUDE_DIRECTORIES(${Torch_SOURCE_INCLUDES})
-find_path(XITARI_INCLUDE_DIR xitari/ale_interface.hpp
+find_path(ALE_INCLUDE_DIR ale/ale_interface.hpp
           HINTS 
           ${TORCH_INSTALL_PREFIX}/include
           ${CMAKE_INSTALL_PREFIX}/include
@@ -40,40 +39,40 @@ find_path(XITARI_INCLUDE_DIR xitari/ale_interface.hpp
           ${LUAROCKS_INSTALL_PREFIX}/../../../../../include
           PATH_SUFFIXES include)
 
-find_path(XITARI_LIBRARY_DIR NAMES xitari libxitari.a
+find_path(ALE_LIBRARY_DIR NAMES ale libale.so
           HINTS 
           ${TORCH_INSTALL_PREFIX}/lib 
           ${CMAKE_INSTALL_PREFIX}/lib
           ${CMAKE_INSTALL_PREFIX}/../../../../../lib 
           ${LUAROCKS_INSTALL_PREFIX}/../../../../../lib)
 
-find_library(XITARI_LIBRARY NAMES xitari libxitari.a
+find_library(ALE_LIBRARY NAMES ale libale.so
           HINTS 
           ${TORCH_INSTALL_PREFIX}/lib 
           ${CMAKE_INSTALL_PREFIX}/lib
           ${CMAKE_INSTALL_PREFIX}/../../../../../lib 
           ${LUAROCKS_INSTALL_PREFIX}/../../../../../lib)
 
-IF(NOT(XITARI_INCLUDE_DIR))
-  MESSAGE(ERROR "Could not find Xitari include location")
+IF(NOT(ALE_INCLUDE_DIR))
+  MESSAGE(ERROR " Could not find ale include location")
 ENDIF()
 
-IF(NOT(XITARI_LIBRARY_DIR))
-  MESSAGE(ERROR "Could not find Xitari library")
+IF(NOT(ALE_LIBRARY_DIR))
+  MESSAGE(ERROR " Could not find ale library")
 ENDIF()
 
-IF(NOT(XITARI_LIBRARY))
-  MESSAGE(ERROR "Could not find Xitari library")
+IF(NOT(ALE_LIBRARY))
+  MESSAGE(ERROR " Could not find ale library")
 ENDIF()
 
-SET(INCDIR "${XITARI_INCLUDE_DIR}")
-SET(LIBDIR "${XITARI_LIBRARY_DIR}")
+SET(INCDIR "${ALE_INCLUDE_DIR}" RETRO_AGENT_INCLUDE_DIR)
+SET(LIBDIR "${ALE_LIBRARY_DIR}")
 
 INCLUDE_DIRECTORIES("${INCDIR}")
 LINK_DIRECTORIES("${LIBDIR}")
 
 ADD_TORCH_PACKAGE(alewrap "${src}" "${luasrc}" "ALE Wrapper")
-TARGET_LINK_LIBRARIES(alewrap ${XITARI_LIBRARY})
+TARGET_LINK_LIBRARIES(alewrap ${ALE_LIBRARY})
 
 # INCLUDE_DIRECTORIES(../../xiborg/xitari)
 # LINK_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../../xiborg/xitari/build)
