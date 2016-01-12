@@ -53,15 +53,15 @@ find_library(ALE_LIBRARY NAMES ale libale.so
           ${CMAKE_INSTALL_PREFIX}/../../../../../lib 
           ${LUAROCKS_INSTALL_PREFIX}/../../../../../lib)
 
-IF(NOT(ALE_INCLUDE_DIR))
+IF(${ALE_INCLUDE_DIR} STREQUAL "ALE_INCLUDE_DIR-NOTFOUND")
   MESSAGE(ERROR " Could not find ale include location")
 ENDIF()
 
-IF(NOT(ALE_LIBRARY_DIR))
+IF(${ALE_LIBRARY_DIR} STREQUAL "ALE_LIBRARY_DIR-NOTFOUND")
   MESSAGE(ERROR " Could not find ale library")
 ENDIF()
 
-IF(NOT(ALE_LIBRARY))
+IF(${ALE_LIBRARY} STREQUAL "ALE_LIBRARY-NOTFOUND")
   MESSAGE(ERROR " Could not find ale library")
 ENDIF()
 
