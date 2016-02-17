@@ -20,8 +20,8 @@ typedef unsigned char uint8_t;
 
 // Converts the palette values to RGB.
 // The shape of the rgb array should be 3 x obs.shape.
-void ale_fillRgbFromPalette(uint8_t *rgb, const uint8_t *obs,
-                                   size_t rgb_size, size_t obs_size);
+//void ale_fillRgbFromPalette(uint8_t *rgb, const uint8_t *obs,
+//                                   size_t rgb_size, size_t obs_size);
 
 // Initializes the ALE.
 ALEInterface *ale_new(const char *rom_file);
@@ -52,7 +52,7 @@ void ale_resetGame(ALEInterface *ale);
 void ale_saveState(ALEInterface *ale);
 
 // ALE load state
-bool ale_loadState(ALEInterface *ale);
+void ale_loadState(ALEInterface *ale);
 
 // Fills the obs with raw palette values.
 //
@@ -73,12 +73,12 @@ void ale_legalActions(ALEInterface *ale, int *actions, size_t size);
 // Returns the number of remaining lives for a game
 int ale_livesRemained(const ALEInterface *ale);
 
-// Used by api to create a string of correct size.
-int ale_getSnapshotLength(const ALEInterface *ale);
-
-// Save the current state into a snapshot
-void ale_saveSnapshot(const ALEInterface *ale, uint8_t *data, size_t length);
-
-// Load a particular snapshot into the emulator
-void ale_restoreSnapshot(ALEInterface *ale, const uint8_t *snapshot,
-                         size_t size);
+//// Used by api to create a string of correct size.
+//int ale_getSnapshotLength(const ALEInterface *ale);
+//
+//// Save the current state into a snapshot
+//void ale_saveSnapshot(const ALEInterface *ale, uint8_t *data, size_t length);
+//
+//// Load a particular snapshot into the emulator
+//void ale_restoreSnapshot(ALEInterface *ale, const uint8_t *snapshot,
+//                         size_t size);

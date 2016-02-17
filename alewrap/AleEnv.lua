@@ -49,7 +49,8 @@ function Env:__init(romPath, extraConfig)
         -- when loosing or gaining a life.
         gameOverReward=0,
         -- Screen display can be enabled.
-        display=false,
+        --display=false,
+        display=true,
         -- The RAM can be returned as an additional observation.
         enableRamObs=false,
     }

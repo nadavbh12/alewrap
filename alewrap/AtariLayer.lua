@@ -29,7 +29,7 @@ require 'paths'
 --[[
 Parameters:
 
- * `gamename` (string) - one of the rom names without '.bin' extension.
+ * `gamename` (string) - one of the rom names
  * `options`  (table) - a table of options
 
 Where `options` has the following keys:
@@ -45,7 +45,7 @@ function game:__init(gamename, options, roms_path)
     self.useRAM   = options.useRAM
 
     self.name = gamename
-    local path_to_game = paths.concat(roms_path, gamename) .. '.bin'
+    local path_to_game = paths.concat(roms_path, gamename)
     local msg, err = pcall(alewrap.createEnv, path_to_game,
                            {enableRamObs = self.useRAM})
     if not msg then

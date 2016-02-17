@@ -17,7 +17,7 @@ IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 # Using GCC.
 ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     MESSAGE(STATUS "Using GCC")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")        ## Optimize
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11")        ## Optimize
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")        ## Optimize
     MESSAGE(STATUS "FLAGS ${CMAKE_CXX_FLAGS}")
 # Using Intel C++.
@@ -30,7 +30,7 @@ ENDIF()
 
 # We are building alewraplib.
 # We specify the paths to ALE includes and libale.
-# INCLUDE_DIRECTORIES(${Torch_SOURCE_INCLUDES})
+ INCLUDE_DIRECTORIES(${Torch_SOURCE_INCLUDES})
 find_path(ALE_INCLUDE_DIR ale/ale_interface.hpp
           HINTS 
           ${TORCH_INSTALL_PREFIX}/include
