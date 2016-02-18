@@ -54,7 +54,7 @@ function game:__init(gamename, corename, options, roms_path, core_path)
     end
       
     local path_to_game = paths.concat(roms_path, gamename)
-    local msg, err = pcall(alewrap.createEnv, path_to_game, path_to_core 
+    local msg, err = pcall(alewrap.createEnv, path_to_game, path_to_core ,
                            {enableRamObs = self.useRAM})
     if not msg then
         error("Cannot find rom " .. path_to_game)
