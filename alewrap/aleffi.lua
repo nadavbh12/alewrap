@@ -55,42 +55,43 @@ mt.numActions = lib.ale_numLegalActions
 mt.actions = lib.ale_legalActions
 mt.lives = lib.ale_livesRemained
 
-mt.restoreSnapshot = function(self, snapshot)
-    lib.ale_restoreSnapshot(self, snapshot, #snapshot)
-end
+--mt.restoreSnapshot = function(self, snapshot)
+--    lib.ale_restoreSnapshot(self, snapshot, #snapshot)
+--end
 
-mt.saveSnapshot = function(self)
-    local size = lib.ale_getSnapshotLength(self)
-    local buf = ffi.new("char[?]", size)
-    lib.ale_saveSnapshot(self, buf, size)
-    return ffi.string(buf, size)
-end
+--mt.saveSnapshot = function(self)
+--    local size = lib.ale_getSnapshotLength(self)
+--    local buf = ffi.new("char[?]", size)
+--    lib.ale_saveSnapshot(self, buf, size)
+--    return ffi.string(buf, size)
+--end
 
 
 ffi.metatype("ALEInterface", mt)
 
 -- Creates a new ALEInterface instance.
-function alewrap.newAle(romPath)
+function alewrap.newAle(romPath, corePath)
     if not paths.filep(romPath) then
         error(string.format('no such ROM file: %q', romPath))
     end
-    return ffi.gc(lib.ale_new(romPath), lib.ale_gc)
+    if not paths.filep(corePath) then
+        error(string.format('no such core file: %q', corePath))
+    end
+    return ffi.gc(lib.ale_new(romPath, corePath), lib.ale_gc)
 end
 
 -- Converts the palette values to RGB values.
 -- A new ByteTensor is returned.
-function alewrap.getRgbFromPalette(obs)
-    obs = obs:contiguous()
-    assert(obs:nElement() == obs:storage():size(),
-        "the obs should not share a bigger storage")
-    local rgbShape = {3}
-    appendAll(rgbShape, obs:size():totable())
-
-    local rgb = torch.ByteTensor(unpack(rgbShape))
-    lib.ale_fillRgbFromPalette(torch.data(rgb), torch.data(obs),
-            rgb:nElement(), obs:nElement())
-    return rgb
-end
-
-
+--function alewrap.getRgbFromPalette(obs)
+--    obs = obs:contiguous()
+--    assert(obs:nElement() == obs:storage():size(),
+--        "the obs should not share a bigger storage")
+--    local rgbShape = {3}
+--    appendAll(rgbShape, obs:size():totable())
+--
+--    local rgb = torch.ByteTensor(unpack(rgbShape))
+--    lib.ale_fillRgbFromPalette(torch.data(rgb), torch.data(obs),
+--            rgb:nElement(), obs:nElement())
+--    return rgb
+--end
 

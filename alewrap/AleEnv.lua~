@@ -16,8 +16,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ]]
 
 
-function alewrap.createEnv(romName, coreName, extraConfig)
-    return alewrap.AleEnv(romName,  coreName, extraConfig)
+function alewrap.createEnv(romName, extraConfig)
+    return alewrap.AleEnv(romName, extraConfig)
 end
 
 local RAM_LENGTH = 128
@@ -41,7 +41,7 @@ local function updateDefaults(dst, src)
 end
 
 local Env = torch.class('alewrap.AleEnv')
-function Env:__init(romPath, corePath, extraConfig)
+function Env:__init(romPath, extraConfig)
     self.config = {
         -- An additional reward signal can be provided
         -- after the end of one game.
@@ -49,15 +49,14 @@ function Env:__init(romPath, corePath, extraConfig)
         -- when loosing or gaining a life.
         gameOverReward=0,
         -- Screen display can be enabled.
-        --display=false,
-        display=true,
+        display=false,
         -- The RAM can be returned as an additional observation.
         enableRamObs=false,
     }
     updateDefaults(self.config, extraConfig)
 
     self.win = nil
-    self.ale = alewrap.newAle(romPath, corePath)
+    self.ale = alewrap.newAle(romPath)
     local width = self.ale:getScreenWidth()
     local height = self.ale:getScreenHeight()
     local obsShapes = {{height, width}}
@@ -65,8 +64,7 @@ function Env:__init(romPath, corePath, extraConfig)
         obsShapes={{height, width}, {RAM_LENGTH}}
     end
     self.envSpec = {
-        --nActions=18,
-        nActions=self.ale:numActions(),
+        nActions=18,
         obsShapes=obsShapes,
     }
 end
@@ -87,7 +85,7 @@ end
 -- Does the specified actions and returns the (reward, observations) pair.
 -- Valid actions:
 --     {torch.Tensor(zeroBasedAction)}
--- The action number should be an integer from 0 to numActions
+-- The action number should be an integer from 0 to 17.
 function Env:envStep(actions)
     assert(#actions == 1, "one action is expected")
     assert(actions[1]:nElement() == 1, "one discrete action is expected")
@@ -103,9 +101,9 @@ function Env:envStep(actions)
     return reward, self:_generateObservations()
 end
 
---function Env:getRgbFromPalette(obs)
---    return alewrap.getRgbFromPalette(obs)
---end
+function Env:getRgbFromPalette(obs)
+    return alewrap.getRgbFromPalette(obs)
+end
 
 function Env:_createObs()
     -- The torch.data() function is provided by torchffi.
@@ -122,11 +120,10 @@ function Env:_createRamObs()
     return ram
 end
 
--- TODO : make sure that the input array is in the correct format
 function Env:_display(obs)
     require 'image'
-    --local frame = self:getRgbFromPalette(obs)
-    self.win = image.display({image=obs, win=self.win})
+    local frame = self:getRgbFromPalette(obs)
+    self.win = image.display({image=frame, win=self.win})
 end
 
 -- Generates the observations for the current step.
@@ -163,13 +160,13 @@ function Env:lives()
     return self.ale:lives()
 end
 
---function Env:saveSnapshot()
---    return self.ale:saveSnapshot()
---end
---
---function Env:restoreSnapshot(snapshot)
---    self.ale:restoreSnapshot(snapshot)
---end
+function Env:saveSnapshot()
+    return self.ale:saveSnapshot()
+end
+
+function Env:restoreSnapshot(snapshot)
+    self.ale:restoreSnapshot(snapshot)
+end
 
 function Env:getScreenWidth()
   return self.ale:getScreenWidth()

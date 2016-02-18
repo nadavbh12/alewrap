@@ -42,19 +42,51 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 //  }
 //}
 
-ALEInterface *ale_new(const char *rom_file) {
-	cout << "ale_new" << endl;
-  return new ALEInterface(rom_file);
+
+//void ale_rearrangeRgb(uint8_t *rgb, const uint32_t *obs, size_t rgb_size,
+//                            size_t obs_size) {
+//  assert(rgb_size == 3*obs_size);
+//
+//  const int r_offset = 0ul;
+//  const int g_offset = obs_size;
+//  const int b_offset = 2ul * obs_size;
+//
+//  uint8_t r, g, b;
+//  for (int index = 0ul; index < obs_size; ++index) {
+//    ALEInterface::getRGB(obs[index], r, g, b);
+//
+//    rgb[r_offset + index] = r;
+//    rgb[g_offset + index] = g;
+//    rgb[b_offset + index] = b;
+//  }
+//}
+static void ale_rearrangeRgb(uint8_t *rgb, const uint32_t *obs, size_t rgb_size, size_t obs_size) {
+  assert(rgb_size == 3*obs_size);
+
+  const int r_offset = 0ul;
+  const int g_offset = obs_size;
+  const int b_offset = 2ul * obs_size;
+
+  uint8_t r, g, b;
+  for (int index = 0ul; index < obs_size; ++index) {
+    ALEInterface::getRGB(obs[index], r, g, b);
+
+    rgb[r_offset + index] = r;
+    rgb[g_offset + index] = g;
+    rgb[b_offset + index] = b;
+  }
+}
+
+
+ALEInterface *ale_new(const char *rom_file, const char *core_file) {
+  return new ALEInterface(rom_file, core_file);
 }
 
 void ale_gc(ALEInterface *ale) {
-	cout << "ale_gc" << endl;
-	delete ale; }
+	delete ale;
+}
 
 double ale_act(ALEInterface *ale, int action) {
-	cout << "ale_act" << endl;
-//  assert(action >= static_cast<int>(ale::PLAYER_A_NOOP) &&
-//         action <= static_cast<int>(ale::PLAYER_A_DOWNLEFTFIRE));
   return ale->act(static_cast<ale::Action>(action));
 }
 
@@ -81,10 +113,11 @@ void ale_fillObs(const ALEInterface *ale, uint8_t *obs, size_t obs_size) {
   const ale::ALEScreen& screen = ale->getScreen();
   size_t h = screen.height();
   size_t w = screen.width();
-  assert(obs_size == h * w);
+  assert(obs_size == 3 * h * w);
+  ale_rearrangeRgb(obs, (uint32_t*)screen.getArray(), obs_size, screen.arraySize());
 
 //  std::copy(screen.getArray().begin(), screen.getArray().end(), obs);
-  memcpy(screen.getArray(),obs, screen.arraySize());
+//  memcpy(obs, screen.getArray(), screen.arraySize());
 }
 
 void ale_fillRamObs(const ALEInterface *ale, uint8_t *ram,

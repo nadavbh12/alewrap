@@ -23,8 +23,14 @@ typedef unsigned char uint8_t;
 //void ale_fillRgbFromPalette(uint8_t *rgb, const uint8_t *obs,
 //                                   size_t rgb_size, size_t obs_size);
 
+// Re-arranges the pixels from a consecutive rgb per pixel to three arrays:
+// r-array, g-array, b-array.
+// The size is the size of the array, not size in bytes 
+//void ale_rearrangeRgb(uint8_t *rgb, const uint32_t *obs, size_t rgb_size,
+//                            size_t obs_size);
+
 // Initializes the ALE.
-ALEInterface *ale_new(const char *rom_file);
+ALEInterface *ale_new(const char *rom_file,  const char *core_file);
 
 // Deletes the ALE pointer.
 void ale_gc(ALEInterface *ale);
@@ -54,10 +60,8 @@ void ale_saveState(ALEInterface *ale);
 // ALE load state
 void ale_loadState(ALEInterface *ale);
 
-// Fills the obs with raw palette values.
-//
-// Currently, the palette values are even numbers from 0 to 255.
-// So there are only 128 distinct values.
+// Fills the obs with raw rgb values.
+// ale screen holds the screen where every pixel is represented by 32bits of rgb
 void ale_fillObs(const ALEInterface *ale, uint8_t *obs, size_t obs_size);
 
 // Fills the given array with the content of the RAM.

@@ -29,7 +29,7 @@ require 'paths'
 --[[
 Parameters:
 
- * `gamename` (string) - one of the rom names
+ * `gamename` (string) - one of the rom names without '.bin' extension.
  * `options`  (table) - a table of options
 
 Where `options` has the following keys:
@@ -38,23 +38,15 @@ Where `options` has the following keys:
  * `useRAM`   (bool) - true if you want to use Atari ROM.
 
 ]]
-function game:__init(gamename, corename, options, roms_path, core_path)
+function game:__init(gamename, options, roms_path)
     options = options or {}
 
     self.useRGB   = options.useRGB
     self.useRAM   = options.useRAM
 
     self.name = gamename
-    self.corename = corename
-    local path_to_core
-    if corename == 'atari' then
-      path_to_core =  paths.concat(core_path, 'stella_libretro.so')
-    elseif corename == 'snes' then
-      path_to_core =  paths.concat(core_path, 'snes9x_next_libretro.so')
-    end
-      
-    local path_to_game = paths.concat(roms_path, gamename)
-    local msg, err = pcall(alewrap.createEnv, path_to_game, path_to_core 
+    local path_to_game = paths.concat(roms_path, gamename) .. '.bin'
+    local msg, err = pcall(alewrap.createEnv, path_to_game,
                            {enableRamObs = self.useRAM})
     if not msg then
         error("Cannot find rom " .. path_to_game)
@@ -66,10 +58,10 @@ function game:__init(gamename, corename, options, roms_path, core_path)
     self.game_over = function() return self.env.ale:isGameOver() end
 
     -- setup initial observations by playing a no-action command
-    --self:saveState()
-    --local x = self:play(0)
-    --self.observations[1] = x.data
-    --self:loadState()
+    self:saveState()
+    local x = self:play(0)
+    self.observations[1] = x.data
+    self:loadState()
 end
 
 
@@ -133,21 +125,21 @@ function game:play(action)
     local data = pixels
     local gray = pixels
 
---    if self.useRGB then
---        data = self.env:getRgbFromPalette(pixels)
---        pixels = data
---    end
+    if self.useRGB then
+        data = self.env:getRgbFromPalette(pixels)
+        pixels = data
+    end
 
     return {reward=reward, data=data, pixels=pixels, ram=ram,
             terminal=is_game_over, gray=gray, lives=self:lives()}
 end
 
 
---function game:getState()
---    return self.env:saveSnapshot()
---end
---
---
---function game:restoreState(state)
---    self.env:restoreSnapshot(state)
---end
+function game:getState()
+    return self.env:saveSnapshot()
+end
+
+
+function game:restoreState(state)
+    self.env:restoreSnapshot(state)
+end

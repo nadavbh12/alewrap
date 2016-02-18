@@ -25,11 +25,12 @@ function gameEnv:__init(_opt)
     local _opt = _opt or {}
     -- defaults to emulator speed
     self.game_path      = _opt.game_path or '.'
+    self.core_path      = _opt.core_path or '.'
     self.verbose        = _opt.verbose or 0
     self._actrep        = _opt.actrep or 1
     self._random_starts = _opt.random_starts or 1
     self._screen        = alewrap.GameScreen(_opt.pool_frms, _opt.gpu)
-    self:reset(_opt.env, _opt.env_params, _opt.gpu)
+    self:reset(_opt.env, _opt.core, _opt.env_params, _opt.gpu)
     return self
 end
 
@@ -53,16 +54,18 @@ function gameEnv:getState()
 end
 
 
-function gameEnv:reset(_env, _params, _gpu)
+function gameEnv:reset(_env, _core, _params, _gpu)
     local env
+    local core
     local params = _params or {useRGB=true}
     -- if no game name given use previous name if available
     if self.game then
         env = self.game.name
     end
     env = _env or env or 'ms_pacman'
+    core = _core or core or 'atari'
 
-    self.game       = alewrap.game(env, params, self.game_path)
+    self.game       = alewrap.game(env, core, params, self.game_path, self.core_path)
     self._actions   = self:getActions()
 
     -- start the game
