@@ -64,6 +64,10 @@ void ale_loadState(ALEInterface *ale);
 // ale screen holds the screen where every pixel is represented by 32bits of rgb
 void ale_fillObs(const ALEInterface *ale, uint8_t *obs, size_t obs_size);
 
+// Fills the obs with raw gray values.
+// Value is obtained by averaging r,g,b.
+void ale_fillObsGray(const ALEInterface *ale, uint8_t *obs, size_t obs_size);
+
 // Fills the given array with the content of the RAM.
 // The obs_size should be 128.
 void ale_fillRamObs(const ALEInterface *ale, uint8_t *obs, size_t obs_size);

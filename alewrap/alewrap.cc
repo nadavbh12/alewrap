@@ -70,13 +70,25 @@ static void ale_rearrangeRgb(uint8_t *rgb, const uint32_t *obs, size_t rgb_size,
   uint8_t r, g, b;
   for (int index = 0ul; index < obs_size; ++index) {
     ALEInterface::getRGB(obs[index], r, g, b);
-
     rgb[r_offset + index] = r;
     rgb[g_offset + index] = g;
     rgb[b_offset + index] = b;
   }
 }
 
+static void ale_getGray(uint8_t *gray, const uint32_t *obs, size_t rgb_size, size_t obs_size) {
+  assert(rgb_size == obs_size);
+
+  const int r_offset = 0ul;
+  const int g_offset = obs_size;
+  const int b_offset = 2ul * obs_size;
+
+  uint8_t r, g, b;
+  for (int index = 0ul; index < obs_size; ++index) {
+    ALEInterface::getRGB(obs[index], r, g, b);
+    gray[index] = (r + g + b)/3;
+  }
+}
 
 ALEInterface *ale_new(const char *rom_file, const char *core_file) {
   return new ALEInterface(rom_file, core_file);
@@ -98,7 +110,7 @@ int ale_getScreenHeight(const ALEInterface *ale) {
   return ale->getScreen().height();
 }
 
-bool ale_isGameover(const ALEInterface *ale) { return ale->game_over(); }
+bool ale_isGameOver(const ALEInterface *ale) { return ale->game_over(); }
 
 void ale_resetGame(ALEInterface *ale) {
   ale->reset_game();
@@ -120,6 +132,13 @@ void ale_fillObs(const ALEInterface *ale, uint8_t *obs, size_t obs_size) {
 //  memcpy(obs, screen.getArray(), screen.arraySize());
 }
 
+void ale_fillObsGray(const ALEInterface *ale, uint8_t *obs, size_t obs_size) {
+  const ale::ALEScreen& screen = ale->getScreen();
+  size_t h = screen.height();
+  size_t w = screen.width();
+  assert(obs_size == h * w);
+  ale_getGray(obs, (uint32_t*)screen.getArray(), obs_size, screen.arraySize());
+}
 void ale_fillRamObs(const ALEInterface *ale, uint8_t *ram,
                     size_t ram_size) {
   const ale::ALERAM& ale_ram = ale->getRAM();
