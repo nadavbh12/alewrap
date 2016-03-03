@@ -46,6 +46,7 @@ mt.act = lib.ale_act
 mt.getScreenWidth = lib.ale_getScreenWidth
 mt.getScreenHeight = lib.ale_getScreenHeight
 mt.fillObs = lib.ale_fillObs
+mt.fillObsGray = lib.ale_fillObsGray
 mt.fillRamObs = lib.ale_fillRamObs
 mt.isGameOver = lib.ale_isGameOver
 mt.resetGame = lib.ale_resetGame
@@ -77,7 +78,8 @@ function alewrap.newAle(romPath, corePath)
     if not paths.filep(corePath) then
         error(string.format('no such core file: %q', corePath))
     end
-    return ffi.gc(lib.ale_new(romPath, corePath), lib.ale_gc)
+    a= ffi.gc(lib.ale_new(romPath, corePath), lib.ale_gc)
+    return a
 end
 
 -- Converts the palette values to RGB values.

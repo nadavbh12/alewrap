@@ -17,6 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 
 function alewrap.createEnv(romName, coreName, extraConfig)
+   
     return alewrap.AleEnv(romName,  coreName, extraConfig)
 end
 
@@ -49,18 +50,23 @@ function Env:__init(romPath, corePath, extraConfig)
         -- when loosing or gaining a life.
         gameOverReward=0,
         -- Screen display can be enabled.
-        --display=false,
-        display=true,
-        -- The RAM can be returned as an additional observation.
+        display=false,
+--        display=true,
+        -- The RAM can be returned as an additional .observation.
         enableRamObs=false,
     }
     updateDefaults(self.config, extraConfig)
-
+    
     self.win = nil
+--    print ("In AleEnv Init") 
     self.ale = alewrap.newAle(romPath, corePath)
+--    print ("In AleEnv new ale created") 
+    
     local width = self.ale:getScreenWidth()
+--    print ("In AleEnv, Params: " .. " Width: " .. width)
     local height = self.ale:getScreenHeight()
     local obsShapes = {{height, width}}
+--    print ("In AleEnv, Params: " .. " Width: " ..width .. " Height: " ..height )  
     if self.config.enableRamObs then
         obsShapes={{height, width}, {RAM_LENGTH}}
     end
@@ -69,6 +75,8 @@ function Env:__init(romPath, corePath, extraConfig)
         nActions=self.ale:numActions(),
         obsShapes=obsShapes,
     }
+      print ("Finished AleEnv Init")
+    
 end
 
 -- Returns a description of the observation shapes
@@ -80,6 +88,7 @@ end
 -- Returns a list of observations.
 -- The integer palette values are returned as the observation.
 function Env:envStart()
+--  print ("in Ale Env start")
     self.ale:resetGame()
     return self:_generateObservations()
 end
@@ -108,15 +117,25 @@ end
 --end
 
 function Env:_createObs()
+--  print("in create obs")
     -- The torch.data() function is provided by torchffi.
-    local width = self.ale:getScreenWidth()
-    local height = self.ale:getScreenHeight()
-    local obs = torch.ByteTensor(height, width)
-    self.ale:fillObs(torch.data(obs), obs:nElement())
+    local width = self.ale:getScreenWidth() --in bytes
+    local height = self.ale:getScreenHeight() 
+--    local obs = torch.ByteTensor(height, width)
+      local obs = torch.ByteTensor(3, height, width)
+    
+--      print ("1 : In AleEnv createObs, Params: " .. " Width: " ..width .. " Height: " .. height .. "nElements : " ..   obs:nElement())  
+--      self.ale:fillObsGray(torch.data(obs), obs:nElement())
+      self.ale:fillObs(torch.data(obs), obs:nElement())
+--      print ("2: In AleEnv createObs, Params: " .. " Width: " ..width .. " Height: " .. height .. "nElements : " ..   obs:nElement())  
+    
+--    print ("Finished CreateObs")
+ 
     return obs
 end
 
 function Env:_createRamObs()
+--    print("in Ram Obs:" )
     local ram = torch.ByteTensor(RAM_LENGTH)
     self.ale:fillRamObs(torch.data(ram), ram:nElement())
     return ram
@@ -125,17 +144,23 @@ end
 -- TODO : make sure that the input array is in the correct format
 function Env:_display(obs)
     require 'image'
-    --local frame = self:getRgbFromPalette(obs)
+--    print ("in display")
+--    local frame = self:getRgbFromPalette(obs)
     self.win = image.display({image=obs, win=self.win})
 end
 
 -- Generates the observations for the current step.
 function Env:_generateObservations()
+--  print("in AleEnv generateObservation")
+  
     local obs = self:_createObs()
+--    print ("after create obs config_display= " .. tostring(self.config.display))
+  
     if self.config.display then
+--      print ("in config display :" .. tostring(self.config.display)  )      
         self:_display(obs)
     end
-
+--      print("in AleEnv generateObservation - after create")
     if self.config.enableRamObs then
         local ram = self:_createRamObs()
         return {obs, ram}

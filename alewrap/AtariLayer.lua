@@ -47,21 +47,28 @@ function game:__init(gamename, corename, options, roms_path, core_path)
     self.name = gamename
     self.corename = corename
     local path_to_core
+    
+--   print("in Atari Layer corename is: " .. corename)
     if corename == 'atari' then
       path_to_core =  paths.concat(core_path, 'stella_libretro.so')
     elseif corename == 'snes' then
       path_to_core =  paths.concat(core_path, 'snes9x_next_libretro.so')
     end
-      
+--    print("game: " .. path_to_core .. " core: " .. path_to_core)
     local path_to_game = paths.concat(roms_path, gamename)
     local msg, err = pcall(alewrap.createEnv, path_to_game, path_to_core ,
                            {enableRamObs = self.useRAM})
+--   print("in Atari Layer pcall")
+    
     if not msg then
         error("Cannot find rom " .. path_to_game)
     end
-    self.env = err
+    
+    self.env = err    
     self.observations = self.env:envStart()
+    
     self.action = {torch.Tensor{0}}
+    
 
     self.game_over = function() return self.env.ale:isGameOver() end
 

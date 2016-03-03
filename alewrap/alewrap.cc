@@ -16,7 +16,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
 #include "alewrap.h"
-
 #include <stdexcept>
 #include <cassert>
 #include <algorithm>
@@ -43,52 +42,73 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 //}
 
 
-//void ale_rearrangeRgb(uint8_t *rgb, const uint32_t *obs, size_t rgb_size,
-//                            size_t obs_size) {
-//  assert(rgb_size == 3*obs_size);
-//
-//  const int r_offset = 0ul;
-//  const int g_offset = obs_size;
-//  const int b_offset = 2ul * obs_size;
-//
-//  uint8_t r, g, b;
-//  for (int index = 0ul; index < obs_size; ++index) {
-//    ALEInterface::getRGB(obs[index], r, g, b);
-//
-//    rgb[r_offset + index] = r;
-//    rgb[g_offset + index] = g;
-//    rgb[b_offset + index] = b;
-//  }
-//}
-static void ale_rearrangeRgb(uint8_t *rgb, const uint32_t *obs, size_t rgb_size, size_t obs_size) {
+void ale_rearrangeRgb(uint8_t *obs, const uint32_t *screenArray, size_t rgb_size, size_t obs_size , const ALEInterface *ale) {
   assert(rgb_size == 3*obs_size);
 
   const int r_offset = 0ul;
   const int g_offset = obs_size;
   const int b_offset = 2ul * obs_size;
-
+//    FILE* a = fopen("/home/administrator/DQN/DeepMind-Atari-Deep-Q-Learner/cWrite2.txt","w"); //DEBUG
+//    printf("sizes are - rgb:%d,  obs: %d, obs_size*3:%d  \n ", rgb_size, obs_size, 3*obs_size);
   uint8_t r, g, b;
   for (int index = 0ul; index < obs_size; ++index) {
-    ALEInterface::getRGB(obs[index], r, g, b);
-    rgb[r_offset + index] = r;
-    rgb[g_offset + index] = g;
-    rgb[b_offset + index] = b;
+
+//	  ALEInterface::getRGB(((uint16_t*)screenArray)[index], r, g, b);
+	ale->getScreen().getRGB(((uint16_t*)screenArray)[index], r, g, b);
+//	fprintf(a,"index:%d  screenArray:%x  r:%x  g:%x  b:%x  \n",index, screenArray[index], r, g, b);
+    obs[r_offset + index] = r;
+    obs[g_offset + index] = g;
+    obs[b_offset + index] = b;
   }
+//  fclose(a);
 }
+//static void ale_rearrangeRgb(uint8_t *obs, const uint32_t *screenArray, size_t rgb_size, size_t obs_size) {
+//
+//	assert(rgb_size == 3*obs_size);
+//
+////	printf("In ale_rearrangeRgb: array address = %d \n", *screenArray);
+//
+//  const int r_offset = 0ul;
+//  const int g_offset = obs_size;
+//  const int b_offset = 2ul * obs_size;
+//  uint8_t r, g, b;
+//  FILE* a = fopen("/home/administrator/DQN/DeepMind-Atari-Deep-Q-Learner/cWrite2.txt","w"); //DEBUG
+//  printf("sizes are - rgb:%d,  obs: %d, obs_size*3:%d  \n ", rgb_size, obs_size, 3*obs_size);
+//
+//  for (int index = 0ul; index < obs_size; index+=2) {
+//	  uint8_t low = ((uint8_t*)screenArray)[index];
+//	  uint8_t high = ((uint8_t*)screenArray)[index+1];
+//	  uint16_t pixel = ((uint16_t)high << 8 ) | low;
+////    ALEInterface::getRGB(((uint16_t*)screenArray)[index], r, g, b);
+//	  ALEInterface::getRGB(pixel, r, g, b);
+////    fprintf(a,"index:%d  screenArray:%x  r:%x  g:%x  b:%x  \n",index, screenArray[index], r, g, b);
+//    fprintf(a,"index:%d  pixel:%x  r:%x  g:%x  b:%x  \n",index, pixel, r, g, b);
+//
+//    obs[r_offset + index] = r;
+//    obs[g_offset + index] = g;
+//    obs[b_offset + index] = b;
+//
+//
+//  }
+//  fclose(a);
+//}
 
-static void ale_getGray(uint8_t *gray, const uint32_t *obs, size_t rgb_size, size_t obs_size) {
-  assert(rgb_size == obs_size);
+//static void ale_getGray(uint8_t *obs, const uint32_t *screenArray, size_t rgb_size, size_t obs_size,size_t Bpp) {
+	static void ale_getGray(uint8_t *obs, const uint32_t *screenArray, size_t rgb_size, size_t obs_size) {
 
-  const int r_offset = 0ul;
-  const int g_offset = obs_size;
-  const int b_offset = 2ul * obs_size;
 
-  uint8_t r, g, b;
-  for (int index = 0ul; index < obs_size; ++index) {
-    ALEInterface::getRGB(obs[index], r, g, b);
-    gray[index] = (r + g + b)/3;
-  }
-}
+//	assert(rgb_size == obs_size);
+	  const int r_offset = 0ul;
+	  const int g_offset = obs_size;
+	  const int b_offset = 2ul * obs_size;
+	  uint8_t r, g, b;
+	  for (int index = 0ul; index < obs_size; ++index) {
+//	    ALEInterface::getRGB(screenArray[index], r, g, b);
+	    obs[index] = (r + g + b)/3;
+//	    obs[index] = (uint8_t)screenArray[index];
+	  }
+
+	  }
 
 ALEInterface *ale_new(const char *rom_file, const char *core_file) {
   return new ALEInterface(rom_file, core_file);
@@ -122,23 +142,26 @@ void ale_loadState(ALEInterface *ale) { return ale->loadState(); }
 void ale_saveState(ALEInterface *ale) { ale->saveState(); }
 
 void ale_fillObs(const ALEInterface *ale, uint8_t *obs, size_t obs_size) {
-  const ale::ALEScreen& screen = ale->getScreen();
-  size_t h = screen.height();
-  size_t w = screen.width();
-  assert(obs_size == 3 * h * w);
-  ale_rearrangeRgb(obs, (uint32_t*)screen.getArray(), obs_size, screen.arraySize());
-
+	const ale::ALEScreen& screen = ale->getScreen();
+	size_t h = screen.height();
+	size_t w = screen.width();
+	assert(obs_size == 3 * h * w);
+//	ale_rearrangeRgb(obs, (uint32_t*)screen.getArray(), screen.arraySize(),obs_size);
+	ale_rearrangeRgb(obs, (uint32_t*)screen.getArray(), obs_size,screen.arraySize(),ale);
 //  std::copy(screen.getArray().begin(), screen.getArray().end(), obs);
 //  memcpy(obs, screen.getArray(), screen.arraySize());
 }
 
 void ale_fillObsGray(const ALEInterface *ale, uint8_t *obs, size_t obs_size) {
-  const ale::ALEScreen& screen = ale->getScreen();
-  size_t h = screen.height();
-  size_t w = screen.width();
-  assert(obs_size == h * w);
-  ale_getGray(obs, (uint32_t*)screen.getArray(), obs_size, screen.arraySize());
+	const ale::ALEScreen& screen = ale->getScreen();
+	size_t h = screen.height();
+	size_t w = screen.width();
+	//assert(obs_size == h * w);
+	ale_getGray(obs, (uint32_t*)screen.getArray(),screen.arraySize(),obs_size);
+//  size_t Bpp = ale->getScreen().Bpp();
+//  ale_getGray(obs, (uint32_t*)screen.getArray(), obs_size, screen.arraySize(),Bpp);
 }
+
 void ale_fillRamObs(const ALEInterface *ale, uint8_t *ram,
                     size_t ram_size) {
   const ale::ALERAM& ale_ram = ale->getRAM();
