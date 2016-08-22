@@ -2,7 +2,7 @@ package = 'alewrap'
 version = '0-0'
 
 source = {
-   url = ''
+   url = 'git://github.com/nadavbh12/alewrap.git'
 }
 
 description = {
