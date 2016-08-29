@@ -52,7 +52,7 @@ function game:__init(gamename, corename, options, roms_path, core_path)
     if corename == 'atari' then
       path_to_core =  paths.concat(core_path, 'stella_libretro.so')
     elseif corename == 'snes' then
-      path_to_core =  paths.concat(core_path, 'snes9x_next_libretro.so')
+      path_to_core =  paths.concat(core_path, 'snes9x2010_libretro.so')
     end
 --    print("game: " .. path_to_core .. " core: " .. path_to_core)
     local path_to_game = paths.concat(roms_path, gamename)
