@@ -59,7 +59,8 @@ void ale_rearrangeRgb(uint8_t *obs, const uint32_t *screenArray, size_t rgb_size
     obs[b_offset + index] = b;
   }
 }
-	static void ale_getGray(uint8_t *obs, const uint32_t *screenArray, size_t rgb_size, size_t obs_size) {
+
+static void ale_getGray(uint8_t *obs, const uint32_t *screenArray, size_t rgb_size, size_t obs_size) {
 
 
 //	assert(rgb_size == obs_size);
@@ -83,8 +84,8 @@ void ale_gc(ALEInterface *ale) {
 	delete ale;
 }
 
-double ale_act(ALEInterface *ale, int action) {
-  return ale->act(static_cast<ale::Action>(action));
+double ale_act(ALEInterface *ale, int actionA, int actionB) {
+  return ale->act(static_cast<ale::Action>(actionA), static_cast<ale::Action>(actionB));
 }
 
 int ale_getScreenWidth(const ALEInterface *ale) {

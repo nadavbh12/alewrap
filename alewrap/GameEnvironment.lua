@@ -88,9 +88,10 @@ end
 
 
 -- Function plays `action` in the game and return game state.
-function gameEnv:_step(action)
-    assert(action)
-    local x = self.game:play(action)
+function gameEnv:_step(actionA, actionB)
+    assert(actionA)
+    actionB = actionB or 0
+    local x = self.game:play(actionA, actionB)
     self._screen:paint(x.data)
     return x.data, x.reward, x.terminal, x.lives
 end
@@ -102,13 +103,13 @@ function gameEnv:_randomStep()
 end
 
 
-function gameEnv:step(action, training)
+function gameEnv:step(actionA, training, actionB)
     -- accumulate rewards over actrep action repeats
     local cumulated_reward = 0
     local frame, reward, terminal, lives
     for i=1,self._actrep do
         -- Take selected action; ATARI games' actions start with action "0".
-        frame, reward, terminal, lives = self:_step(action)
+        frame, reward, terminal, lives = self:_step(actionA, actionB)
 
         -- accumulate instantaneous reward
         cumulated_reward = cumulated_reward + reward

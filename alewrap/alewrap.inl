@@ -36,7 +36,7 @@ ALEInterface *ale_new(const char *rom_file,  const char *core_file);
 void ale_gc(ALEInterface *ale);
 
 // Applies the action and returns the obtained reward.
-double ale_act(ALEInterface *ale, int action);
+double ale_act(ALEInterface *ale,  int actionA, int actionB);
 
 // Returns the screen width.
 int ale_getScreenWidth(const ALEInterface *ale);

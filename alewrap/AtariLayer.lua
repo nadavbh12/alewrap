@@ -67,7 +67,8 @@ function game:__init(gamename, corename, options, roms_path, core_path)
     self.env = err    
     self.observations = self.env:envStart()
     
-    self.action = {torch.Tensor{0}}
+    self.actionA = {torch.Tensor{0}}
+    self.actionB = {torch.Tensor{0}}
     
 
     self.game_over = function() return self.env.ale:isGameOver() end
@@ -127,12 +128,14 @@ following keys:
  * `ram`    - ram of the ATARI if requested
  * `terminal` - (bool), true if the new state is a terminal state
 ]]
-function game:play(action)
-    action = action or 0
-    self.action[1][1] = action
+function game:play(actionA, actionB)
+    actionA = actionA or 0
+    actionB = actionB or 0
+    self.actionA[1][1] = actionA
+    self.actionB[1][1] = actionB
 
     -- take the step in the environment
-    local reward, observations = self.env:envStep(self.action)
+    local reward, observations = self.env:envStep(self.actionA, self.actionB)
     local is_game_over = self.game_over(reward)
 
     local pixels = observations[1]

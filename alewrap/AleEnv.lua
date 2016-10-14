@@ -75,7 +75,6 @@ function Env:__init(romPath, corePath, extraConfig)
         nActions=self.ale:numActions(),
         obsShapes=obsShapes,
     }
-      print ("Finished AleEnv Init")
     
 end
 
@@ -97,9 +96,17 @@ end
 -- Valid actions:
 --     {torch.Tensor(zeroBasedAction)}
 -- The action number should be an integer from 0 to numActions
-function Env:envStep(actions)
-    assert(#actions == 1, "one action is expected")
-    assert(actions[1]:nElement() == 1, "one discrete action is expected")
+function Env:envStep(actionsA, actionsB)
+    if actionsB then
+      assert(#actionsB == 1, "one action is expected")
+      assert(actionsB[1]:nElement() == 1, "one discrete action is expected")
+    else
+--      actionsB = torch.Tensor(1,self.ale:numActions()):zero()
+      actionsB = torch.Tensor(1,self.ale:numActions()):zero()
+    end
+    
+    assert(#actionsA == 1, "one action is expected")
+    assert(actionsA[1]:nElement() == 1, "one discrete action is expected")
 
     if self.ale:isGameOver() then
         self.ale:resetGame()
@@ -108,7 +115,7 @@ function Env:envStep(actions)
         return self.config.gameOverReward, self:_generateObservations()
     end
 
-    local reward = self.ale:act(actions[1][1])
+    local reward = self.ale:act(actionsA[1][1], actionsB[1][1])
     return reward, self:_generateObservations()
 end
 
