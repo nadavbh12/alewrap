@@ -21,6 +21,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include <algorithm>
 #include <string.h>
 
+void ale_loadRom(ALEInterface *ale, const char* rom_file, const char* core_file){
+	printf("rom_file: %s, coreFile: %s", rom_file, core_file);
+	ale->loadROM(std::string(rom_file), std::string(core_file));
+}
 
 //void ale_fillRgbFromPalette(uint8_t *rgb, const uint8_t *obs, size_t rgb_size,
 //                            size_t obs_size) {
@@ -76,8 +80,12 @@ static void ale_getGray(uint8_t *obs, const uint32_t *screenArray, size_t rgb_si
 
 	  }
 
-ALEInterface *ale_new(const char *rom_file, const char *core_file) {
-  return new ALEInterface(rom_file, core_file);
+//ALEInterface *ale_new(const char *rom_file, const char *core_file) {
+//  return new ALEInterface(rom_file, core_file);
+//}
+
+ALEInterface *ale_new() {
+  return new ALEInterface();
 }
 
 void ale_gc(ALEInterface *ale) {
@@ -149,6 +157,42 @@ void ale_legalActions(ALEInterface *ale, int *actions,
 }
 
 int ale_livesRemained(const ALEInterface *ale) { return ale->lives(); }
+
+
+// Get the value of a setting.
+const char* ale_getString(ALEInterface *ale, const char* key){
+	return ale->getString(std::string(key)).c_str();
+}
+
+int ale_getInt(ALEInterface *ale, const char* key){
+	return ale->getInt(std::string(key));
+}
+
+bool ale_getBool(ALEInterface *ale, const char* key){
+	return ale->getBool(std::string(key));
+}
+
+float ale_getFloat(ALEInterface *ale, const char* key){
+	return ale->getFloat(std::string(key));
+}
+
+// Set the value of a setting. loadRom() must be called before the
+// setting will take effect.
+void ale_setString(ALEInterface *ale, const char* key, const char* value){
+	ale->setString(std::string(key), std::string(value));
+}
+
+void ale_setInt(ALEInterface *ale, const char* key, const int value){
+	ale->setInt(std::string(key), value);
+}
+
+void ale_setBool(ALEInterface *ale, const char* key, const bool value){
+	ale->setBool(std::string(key), value);
+}
+
+void ale_setFloat(ALEInterface *ale, const char* key, const float value){
+	ale->setFloat(std::string(key), value);
+}
 
 //int ale_getSnapshotLength(const ALEInterface *ale) {
 //  return static_cast<int>(ale->getSnapshot().size());

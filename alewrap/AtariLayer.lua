@@ -43,25 +43,24 @@ function game:__init(gamename, corename, options, roms_path, core_path)
 
     self.useRGB   = options.useRGB
     self.useRAM   = options.useRAM
+    self.twoPlayers = options.twoPlayers
 
     self.name = gamename
     self.corename = corename
     local path_to_core
     
---   print("in Atari Layer corename is: " .. corename)
     if corename == 'atari' then
       path_to_core =  paths.concat(core_path, 'stella_libretro.so')
     elseif corename == 'snes' then
       path_to_core =  paths.concat(core_path, 'snes9x2010_libretro.so')
     end
---    print("game: " .. path_to_core .. " core: " .. path_to_core)
     local path_to_game = paths.concat(roms_path, gamename)
     local msg, err = pcall(alewrap.createEnv, path_to_game, path_to_core ,
-                           {enableRamObs = self.useRAM})
---   print("in Atari Layer pcall")
+                           {enableRamObs = self.useRAM, 
+                            twoPlayers = self.twoPlayers})
     
     if not msg then
-        error("Cannot find rom " .. path_to_game)
+        error("Cannot find rom " .. path_to_game .. " or core " .. path_to_core)
     end
     
     self.env = err    
@@ -69,7 +68,6 @@ function game:__init(gamename, corename, options, roms_path, core_path)
     
     self.actionA = {torch.Tensor{0}}
     self.actionB = {torch.Tensor{0}}
-    
 
     self.game_over = function() return self.env.ale:isGameOver() end
 
@@ -161,3 +159,42 @@ end
 --function game:restoreState(state)
 --    self.env:restoreSnapshot(state)
 --end
+
+-- Get the value of a setting.
+function game:getString(key)
+  return self.env:getString(key)
+end
+
+function game:getInt(key)
+  return self.env:getInt(key)
+end
+
+function game:getInt(key)
+  return self.env:getInt(key)
+end
+
+function game:getBool(key)
+  return self.env:getBool(key)
+end
+
+function game:getFloat(key)
+  return self.env:getFloat(key)
+end
+
+-- Set the value of a setting. loadRom() must be called before the
+-- setting will take effect.
+function game:setString(key, value)
+  self.env:setString(key, value)
+end
+
+function game:setInt(key, value)
+  self.env:setInt(key, value)
+end
+
+function game:setBool(key, value)
+  self.env:setBool(key, value)
+end
+
+function game:setFloat(key, value)
+  self.env:setFloat(key, value)
+end

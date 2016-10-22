@@ -17,7 +17,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 
 function alewrap.createEnv(romName, coreName, extraConfig)
-   
     return alewrap.AleEnv(romName,  coreName, extraConfig)
 end
 
@@ -54,28 +53,28 @@ function Env:__init(romPath, corePath, extraConfig)
 --        display=true,
         -- The RAM can be returned as an additional .observation.
         enableRamObs=false,
+        -- Certain games can be played using two agents
+        twoPlayers=false
     }
     updateDefaults(self.config, extraConfig)
     
     self.win = nil
---    print ("In AleEnv Init") 
-    self.ale = alewrap.newAle(romPath, corePath)
---    print ("In AleEnv new ale created") 
-    
-    local width = self.ale:getScreenWidth()
---    print ("In AleEnv, Params: " .. " Width: " .. width)
-    local height = self.ale:getScreenHeight()
-    local obsShapes = {{height, width}}
---    print ("In AleEnv, Params: " .. " Width: " ..width .. " Height: " ..height )  
     if self.config.enableRamObs then
         obsShapes={{height, width}, {RAM_LENGTH}}
     end
+    self.ale = alewrap.newAle()
+    -- below configuration must be set before rom load
+    self.ale:setBool("two_players", self.config.twoPlayers)
+    self.ale:loadRom(romPath, corePath)
+    
     self.envSpec = {
         --nActions=18,
         nActions=self.ale:numActions(),
         obsShapes=obsShapes,
     }
-    
+    local width = self.ale:getScreenWidth()
+    local height = self.ale:getScreenHeight()
+    local obsShapes = {{height, width}}
 end
 
 -- Returns a description of the observation shapes
@@ -211,3 +210,42 @@ function Env:getScreenHeight()
   return self.ale:getScreenHeight()
 end
 
+
+-- Get the value of a setting.
+function Env:getString(key)
+  return self.ale:getString(key)
+end
+
+function Env:getInt(key)
+  return self.ale:getInt(key)
+end
+
+function Env:getInt(key)
+  return self.ale:getInt(key)
+end
+
+function Env:getBool(key)
+  return self.ale:getBool(key)
+end
+
+function Env:getFloat(key)
+  return self.ale:getFloat(key)
+end
+
+-- Set the value of a setting. loadRom() must be called before the
+-- setting will take effect.
+function Env:setString(key, value)
+  self.ale:setString(key, value);
+end
+
+function Env:setInt(key, value)
+  self.ale:setInt(key, value);
+end
+
+function Env:setBool(key, value)
+  self.ale:setBool(key, value);
+end
+
+function Env:setFloat(key, value)
+  self.ale:setFloat(key, value);
+end

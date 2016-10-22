@@ -30,7 +30,11 @@ typedef unsigned char uint8_t;
 //                            size_t obs_size);
 
 // Initializes the ALE.
-ALEInterface *ale_new(const char *rom_file,  const char *core_file);
+//ALEInterface *ale_new(const char *rom_file,  const char *core_file);
+ALEInterface *ale_new();
+
+// load a rom and a core to ale
+void ale_loadRom(ALEInterface *ale, const char* rom_file, const char* core_file);
 
 // Deletes the ALE pointer.
 void ale_gc(ALEInterface *ale);
@@ -90,3 +94,22 @@ int ale_livesRemained(const ALEInterface *ale);
 //// Load a particular snapshot into the emulator
 //void ale_restoreSnapshot(ALEInterface *ale, const uint8_t *snapshot,
 //                         size_t size);
+
+// Get the value of a setting.
+const char* ale_getString(ALEInterface *ale, const char* key);
+
+int ale_getInt(ALEInterface *ale, const char* key);
+
+bool ale_getBool(ALEInterface *ale, const char* key);
+
+float ale_getFloat(ALEInterface *ale, const char* key);
+
+// Set the value of a setting. loadRom() must be called before the
+// setting will take effect.
+void ale_setString(ALEInterface *ale, const char* key, const char* value);
+
+void ale_setInt(ALEInterface *ale, const char* key, const int value);
+
+void ale_setBool(ALEInterface *ale, const char* key, const bool value);
+
+void ale_setFloat(ALEInterface *ale, const char* key, const float value);

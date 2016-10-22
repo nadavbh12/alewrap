@@ -42,6 +42,7 @@ local lib = ffi.load(package.searchpath('libalewrap',package.cpath))
 -- Defining the metatable for ALEInterface userdata.
 local mt = {}
 mt.__index = mt
+mt.loadRom = lib.ale_loadRom
 mt.act = lib.ale_act
 mt.getScreenWidth = lib.ale_getScreenWidth
 mt.getScreenHeight = lib.ale_getScreenHeight
@@ -55,6 +56,15 @@ mt.saveState = lib.ale_saveState
 mt.numActions = lib.ale_numLegalActions
 mt.actions = lib.ale_legalActions
 mt.lives = lib.ale_livesRemained
+
+mt.getString = lib.ale_getString
+mt.getInt = lib.ale_getInt
+mt.getBool = lib.ale_getBool
+mt.getFloat = lib.ale_getFloat
+mt.setString = lib.ale_setString
+mt.setInt = lib.ale_setInt
+mt.setBool = lib.ale_setBool
+mt.setFloat = lib.ale_setFloat
 
 --mt.restoreSnapshot = function(self, snapshot)
 --    lib.ale_restoreSnapshot(self, snapshot, #snapshot)
@@ -71,16 +81,22 @@ mt.lives = lib.ale_livesRemained
 ffi.metatype("ALEInterface", mt)
 
 -- Creates a new ALEInterface instance.
-function alewrap.newAle(romPath, corePath)
-    if not paths.filep(romPath) then
-        error(string.format('no such ROM file: %q', romPath))
-    end
-    if not paths.filep(corePath) then
-        error(string.format('no such core file: %q', corePath))
-    end
-    a= ffi.gc(lib.ale_new(romPath, corePath), lib.ale_gc)
+function alewrap.newAle()
+    a= ffi.gc(lib.ale_new(), lib.ale_gc)
     return a
 end
+
+-- Creates a new ALEInterface instance.
+--function alewrap.newAle(romPath, corePath)
+--    if not paths.filep(romPath) then
+--        error(string.format('no such ROM file: %q', romPath))
+--    end
+--    if not paths.filep(corePath) then
+--        error(string.format('no such core file: %q', corePath))
+--    end
+--    a= ffi.gc(lib.ale_new(romPath, corePath), lib.ale_gc)
+--    return a
+--end
 
 -- Converts the palette values to RGB values.
 -- A new ByteTensor is returned.
