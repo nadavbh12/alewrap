@@ -54,7 +54,10 @@ function Env:__init(romPath, corePath, extraConfig)
         -- The RAM can be returned as an additional .observation.
         enableRamObs=false,
         -- Certain games can be played using two agents
-        twoPlayers=false
+        twoPlayers=false,
+        mk_p1_char="cage",
+        mk_p2_char="scorpion",
+        mk_opponent_char=0
     }
     updateDefaults(self.config, extraConfig)
     
@@ -65,6 +68,9 @@ function Env:__init(romPath, corePath, extraConfig)
     self.ale = alewrap.newAle()
     -- below configuration must be set before rom load
     self.ale:setBool("two_players", self.config.twoPlayers)
+    self.ale:setString("MK_player1_character", self.config.mk_p1_char)
+    self.ale:setString("MK_player2_character", self.config.mk_p2_char)
+    self.ale:setInt("MK_opponent_character", self.config.mk_opponent_char)
     self.ale:loadRom(romPath, corePath)
     
     self.envSpec = {

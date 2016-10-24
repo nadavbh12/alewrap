@@ -44,6 +44,9 @@ function game:__init(gamename, corename, options, roms_path, core_path)
     self.useRGB   = options.useRGB
     self.useRAM   = options.useRAM
     self.twoPlayers = options.twoPlayers
+    self.mk_p1_char = options.mk_p1_char
+    self.mk_p2_char = options.mk_p2_char
+    self.mk_opponent_char = options.mk_opponent_char
 
     self.name = gamename
     self.corename = corename
@@ -57,7 +60,11 @@ function game:__init(gamename, corename, options, roms_path, core_path)
     local path_to_game = paths.concat(roms_path, gamename)
     local msg, err = pcall(alewrap.createEnv, path_to_game, path_to_core ,
                            {enableRamObs = self.useRAM, 
-                            twoPlayers = self.twoPlayers})
+                            twoPlayers = self.twoPlayers,
+                            mk_p1_char = self.mk_p1_char,
+                            mk_p2_char = self.mk_p2_char,
+                            mk_opponent_char = self.mk_opponent_char,
+                            })
     
     if not msg then
         error("Cannot find rom " .. path_to_game .. " or core " .. path_to_core)
