@@ -15,21 +15,22 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ]]
 
--- This file defines the alewrap.GameEnvironment class.
+-- This file defines the rlewrap.GameEnvironment class.
 
 -- The GameEnvironment class.
-local gameEnv = torch.class('alewrap.GameEnvironment')
+local gameEnv = torch.class('rlewrap.GameEnvironment')
 
 
 function gameEnv:__init(_opt)
     local _opt = _opt or {}
     -- defaults to emulator speed
     self.game_path      = _opt.game_path or '.'
+    self.core_path      = _opt.core_path or '.'
     self.verbose        = _opt.verbose or 0
     self._actrep        = _opt.actrep or 1
     self._random_starts = _opt.random_starts or 1
-    self._screen        = alewrap.GameScreen(_opt.pool_frms, _opt.gpu)
-    self:reset(_opt.env, _opt.env_params, _opt.gpu)
+    self._screen        = rlewrap.GameScreen(_opt.pool_frms, _opt.gpu)
+    self:reset(_opt.env, _opt.core, _opt.env_params, _opt.gpu)
     return self
 end
 
@@ -53,16 +54,18 @@ function gameEnv:getState()
 end
 
 
-function gameEnv:reset(_env, _params, _gpu)
+function gameEnv:reset(_env, _core, _params, _gpu)
     local env
+    local core
     local params = _params or {useRGB=true}
     -- if no game name given use previous name if available
     if self.game then
         env = self.game.name
     end
     env = _env or env or 'ms_pacman'
+    core = _core or core or 'snes'
 
-    self.game       = alewrap.game(env, params, self.game_path)
+    self.game       = rlewrap.game(env, core, params, self.game_path, self.core_path)
     self._actions   = self:getActions()
 
     -- start the game
@@ -85,9 +88,10 @@ end
 
 
 -- Function plays `action` in the game and return game state.
-function gameEnv:_step(action)
-    assert(action)
-    local x = self.game:play(action)
+function gameEnv:_step(actionA, actionB)
+    assert(actionA)
+    actionB = actionB or 0
+    local x = self.game:play(actionA, actionB)
     self._screen:paint(x.data)
     return x.data, x.reward, x.terminal, x.lives
 end
@@ -99,13 +103,13 @@ function gameEnv:_randomStep()
 end
 
 
-function gameEnv:step(action, training)
+function gameEnv:step(actionA, training, actionB)
     -- accumulate rewards over actrep action repeats
     local cumulated_reward = 0
     local frame, reward, terminal, lives
     for i=1,self._actrep do
         -- Take selected action; ATARI games' actions start with action "0".
-        frame, reward, terminal, lives = self:_step(action)
+        frame, reward, terminal, lives = self:_step(actionA, actionB)
 
         -- accumulate instantaneous reward
         cumulated_reward = cumulated_reward + reward

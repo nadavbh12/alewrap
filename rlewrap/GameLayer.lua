@@ -18,11 +18,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 --[[ Game class that provides an interface for the atari roms.
 
 In general, you would want to use:
-    alewrap.game(gamename)
+    rlewrap.game(gamename)
 ]]
 
 require 'torch'
-local game = torch.class('alewrap.game')
+local game = torch.class('rlewrap.game')
 require 'paths'
 
 
@@ -58,7 +58,7 @@ function game:__init(gamename, corename, options, roms_path, core_path)
       path_to_core =  paths.concat(core_path, 'snes9x2010_libretro.so')
     end
     local path_to_game = paths.concat(roms_path, gamename)
-    local msg, err = pcall(alewrap.createEnv, path_to_game, path_to_core ,
+    local msg, err = pcall(rlewrap.createEnv, path_to_game, path_to_core ,
                            {enableRamObs = self.useRAM, 
                             twoPlayers = self.twoPlayers,
                             mk_p1_char = self.mk_p1_char,
@@ -76,7 +76,7 @@ function game:__init(gamename, corename, options, roms_path, core_path)
     self.actionA = {torch.Tensor{0}}
     self.actionB = {torch.Tensor{0}}
 
-    self.game_over = function() return self.env.ale:isGameOver() end
+    self.game_over = function() return self.env.rle:isGameOver() end
 
     -- setup initial observations by playing a no-action command
     --self:saveState()
@@ -149,7 +149,7 @@ function game:play(actionA, actionB)
     local gray = pixels
 
 --    if self.useRGB then
---        data = self.env:getRgbFromPalette(pixels)
+--        data = self.env:getRgbFromPrlette(pixels)
 --        pixels = data
 --    end
 

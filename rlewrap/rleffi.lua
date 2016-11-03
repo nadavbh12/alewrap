@@ -34,73 +34,73 @@ end
 
 
 local ffi = require 'ffi'
--- We let the ale::ALEInterface to look like a C struct.
-ffi.cdef("typedef struct ALEInterface ALEInterface;")
-ffi.cdef(readContent(paths.thisfile("alewrap.inl")))
-local lib = ffi.load(package.searchpath('libalewrap',package.cpath))
+-- We let the rle::RLEInterface to look like a C struct.
+ffi.cdef("typedef struct RLEInterface RLEInterface;")
+ffi.cdef(readContent(paths.thisfile("rlewrap.inl")))
+local lib = ffi.load(package.searchpath('librlewrap',package.cpath))
 
--- Defining the metatable for ALEInterface userdata.
+-- Defining the metatable for RLEInterface userdata.
 local mt = {}
 mt.__index = mt
-mt.loadRom = lib.ale_loadRom
-mt.act = lib.ale_act
-mt.getScreenWidth = lib.ale_getScreenWidth
-mt.getScreenHeight = lib.ale_getScreenHeight
-mt.fillObs = lib.ale_fillObs
-mt.fillObsGray = lib.ale_fillObsGray
-mt.fillRamObs = lib.ale_fillRamObs
-mt.isGameOver = lib.ale_isGameOver
-mt.resetGame = lib.ale_resetGame
-mt.loadState = lib.ale_loadState
-mt.saveState = lib.ale_saveState
-mt.numActions = lib.ale_numLegalActions
-mt.actions = lib.ale_legalActions
-mt.lives = lib.ale_livesRemained
+mt.loadRom = lib.rle_loadRom
+mt.act = lib.rle_act
+mt.getScreenWidth = lib.rle_getScreenWidth
+mt.getScreenHeight = lib.rle_getScreenHeight
+mt.fillObs = lib.rle_fillObs
+mt.fillObsGray = lib.rle_fillObsGray
+mt.fillRamObs = lib.rle_fillRamObs
+mt.isGameOver = lib.rle_isGameOver
+mt.resetGame = lib.rle_resetGame
+mt.loadState = lib.rle_loadState
+mt.saveState = lib.rle_saveState
+mt.numActions = lib.rle_numLegalActions
+mt.actions = lib.rle_legalActions
+mt.lives = lib.rle_livesRemained
 
-mt.getString = lib.ale_getString
-mt.getInt = lib.ale_getInt
-mt.getBool = lib.ale_getBool
-mt.getFloat = lib.ale_getFloat
-mt.setString = lib.ale_setString
-mt.setInt = lib.ale_setInt
-mt.setBool = lib.ale_setBool
-mt.setFloat = lib.ale_setFloat
+mt.getString = lib.rle_getString
+mt.getInt = lib.rle_getInt
+mt.getBool = lib.rle_getBool
+mt.getFloat = lib.rle_getFloat
+mt.setString = lib.rle_setString
+mt.setInt = lib.rle_setInt
+mt.setBool = lib.rle_setBool
+mt.setFloat = lib.rle_setFloat
 
 --mt.restoreSnapshot = function(self, snapshot)
---    lib.ale_restoreSnapshot(self, snapshot, #snapshot)
+--    lib.rle_restoreSnapshot(self, snapshot, #snapshot)
 --end
 
 --mt.saveSnapshot = function(self)
---    local size = lib.ale_getSnapshotLength(self)
+--    local size = lib.rle_getSnapshotLength(self)
 --    local buf = ffi.new("char[?]", size)
---    lib.ale_saveSnapshot(self, buf, size)
+--    lib.rle_saveSnapshot(self, buf, size)
 --    return ffi.string(buf, size)
 --end
 
 
-ffi.metatype("ALEInterface", mt)
+ffi.metatype("RLEInterface", mt)
 
--- Creates a new ALEInterface instance.
-function alewrap.newAle()
-    a= ffi.gc(lib.ale_new(), lib.ale_gc)
+-- Creates a new RLEInterface instance.
+function rlewrap.newAle()
+    a= ffi.gc(lib.rle_new(), lib.rle_gc)
     return a
 end
 
--- Creates a new ALEInterface instance.
---function alewrap.newAle(romPath, corePath)
+-- Creates a new RLEInterface instance.
+--function rlewrap.newAle(romPath, corePath)
 --    if not paths.filep(romPath) then
 --        error(string.format('no such ROM file: %q', romPath))
 --    end
 --    if not paths.filep(corePath) then
 --        error(string.format('no such core file: %q', corePath))
 --    end
---    a= ffi.gc(lib.ale_new(romPath, corePath), lib.ale_gc)
+--    a= ffi.gc(lib.rle_new(romPath, corePath), lib.rle_gc)
 --    return a
 --end
 
--- Converts the palette values to RGB values.
+-- Converts the prlette values to RGB values.
 -- A new ByteTensor is returned.
---function alewrap.getRgbFromPalette(obs)
+--function rlewrap.getRgbFromPrlette(obs)
 --    obs = obs:contiguous()
 --    assert(obs:nElement() == obs:storage():size(),
 --        "the obs should not share a bigger storage")
@@ -108,7 +108,7 @@ end
 --    appendAll(rgbShape, obs:size():totable())
 --
 --    local rgb = torch.ByteTensor(unpack(rgbShape))
---    lib.ale_fillRgbFromPalette(torch.data(rgb), torch.data(obs),
+--    lib.rle_fillRgbFromPrlette(torch.data(rgb), torch.data(obs),
 --            rgb:nElement(), obs:nElement())
 --    return rgb
 --end

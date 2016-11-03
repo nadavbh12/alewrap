@@ -1,4 +1,4 @@
---[[ Copyright 2014 Google Inc.
+/* Copyright 2014 Google Inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -13,16 +13,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-]]
+*/
 
-alewrap = {}
-require 'paths'
+#ifndef RLEWRAP_H
+#define RLEWRAP_H
 
-paths.dofile('aleffi.lua')
-paths.dofile('AleEnv.lua')
+#include <rle/rle_interface.hpp>
 
-paths.dofile('AtariLayer.lua')
-paths.dofile('GameScreen.lua')
-paths.dofile('GameEnvironment.lua')
+typedef rle::RLEInterface RLEInterface;
 
-return alewrap
+extern "C" {
+#include "rlewrap.inl"
+}
+
+#endif  // RLEWRAP_H

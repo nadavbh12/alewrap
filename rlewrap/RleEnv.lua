@@ -16,8 +16,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ]]
 
 
-function alewrap.createEnv(romName, coreName, extraConfig)
-    return alewrap.AleEnv(romName,  coreName, extraConfig)
+function rlewrap.createEnv(romName, coreName, extraConfig)
+    return rlewrap.RleEnv(romName,  coreName, extraConfig)
 end
 
 local RAM_LENGTH = 128
@@ -40,7 +40,7 @@ local function updateDefaults(dst, src)
     update(dst, src)
 end
 
-local Env = torch.class('alewrap.AleEnv')
+local Env = torch.class('rlewrap.RleEnv')
 function Env:__init(romPath, corePath, extraConfig)
     self.config = {
         -- An additional reward signal can be provided
@@ -65,21 +65,21 @@ function Env:__init(romPath, corePath, extraConfig)
     if self.config.enableRamObs then
         obsShapes={{height, width}, {RAM_LENGTH}}
     end
-    self.ale = alewrap.newAle()
+    self.rle = rlewrap.newAle()
     -- below configuration must be set before rom load
-    self.ale:setBool("two_players", self.config.twoPlayers)
-    self.ale:setString("MK_player1_character", self.config.mk_p1_char)
-    self.ale:setString("MK_player2_character", self.config.mk_p2_char)
-    self.ale:setInt("MK_opponent_character", self.config.mk_opponent_char)
-    self.ale:loadRom(romPath, corePath)
+    self.rle:setBool("two_players", self.config.twoPlayers)
+    self.rle:setString("MK_player1_character", self.config.mk_p1_char)
+    self.rle:setString("MK_player2_character", self.config.mk_p2_char)
+    self.rle:setInt("MK_opponent_character", self.config.mk_opponent_char)
+    self.rle:loadRom(romPath, corePath)
     
     self.envSpec = {
         --nActions=18,
-        nActions=self.ale:numActions(),
+        nActions=self.rle:numActions(),
         obsShapes=obsShapes,
     }
-    local width = self.ale:getScreenWidth()
-    local height = self.ale:getScreenHeight()
+    local width = self.rle:getScreenWidth()
+    local height = self.rle:getScreenHeight()
     local obsShapes = {{height, width}}
 end
 
@@ -93,7 +93,7 @@ end
 -- The integer palette values are returned as the observation.
 function Env:envStart()
 --  print ("in Ale Env start")
-    self.ale:resetGame()
+    self.rle:resetGame()
     return self:_generateObservations()
 end
 
@@ -106,40 +106,36 @@ function Env:envStep(actionsA, actionsB)
       assert(#actionsB == 1, "one action is expected")
       assert(actionsB[1]:nElement() == 1, "one discrete action is expected")
     else
---      actionsB = torch.Tensor(1,self.ale:numActions()):zero()
-      actionsB = torch.Tensor(1,self.ale:numActions()):zero()
+--      actionsB = torch.Tensor(1,self.rle:numActions()):zero()
+      actionsB = torch.Tensor(1,self.rle:numActions()):zero()
     end
     
     assert(#actionsA == 1, "one action is expected")
     assert(actionsA[1]:nElement() == 1, "one discrete action is expected")
 
-    if self.ale:isGameOver() then
-        self.ale:resetGame()
+    if self.rle:isGameOver() then
+        self.rle:resetGame()
         -- The first screen of the game will be also
         -- provided as the observation.
         return self.config.gameOverReward, self:_generateObservations()
     end
 
-    local reward = self.ale:act(actionsA[1][1], actionsB[1][1])
+    local reward = self.rle:act(actionsA[1][1], actionsB[1][1])
     return reward, self:_generateObservations()
 end
-
---function Env:getRgbFromPalette(obs)
---    return alewrap.getRgbFromPalette(obs)
---end
 
 function Env:_createObs()
 --  print("in create obs")
     -- The torch.data() function is provided by torchffi.
-    local width = self.ale:getScreenWidth() --in bytes
-    local height = self.ale:getScreenHeight() 
+    local width = self.rle:getScreenWidth() --in bytes
+    local height = self.rle:getScreenHeight() 
 --    local obs = torch.ByteTensor(height, width)
       local obs = torch.ByteTensor(3, height, width)
     
---      print ("1 : In AleEnv createObs, Params: " .. " Width: " ..width .. " Height: " .. height .. "nElements : " ..   obs:nElement())  
---      self.ale:fillObsGray(torch.data(obs), obs:nElement())
-      self.ale:fillObs(torch.data(obs), obs:nElement())
---      print ("2: In AleEnv createObs, Params: " .. " Width: " ..width .. " Height: " .. height .. "nElements : " ..   obs:nElement())  
+--      print ("1 : In RleEnv createObs, Params: " .. " Width: " ..width .. " Height: " .. height .. "nElements : " ..   obs:nElement())  
+--      self.rle:fillObsGray(torch.data(obs), obs:nElement())
+      self.rle:fillObs(torch.data(obs), obs:nElement())
+--      print ("2: In RleEnv createObs, Params: " .. " Width: " ..width .. " Height: " .. height .. "nElements : " ..   obs:nElement())  
     
 --    print ("Finished CreateObs")
  
@@ -149,21 +145,19 @@ end
 function Env:_createRamObs()
 --    print("in Ram Obs:" )
     local ram = torch.ByteTensor(RAM_LENGTH)
-    self.ale:fillRamObs(torch.data(ram), ram:nElement())
+    self.rle:fillRamObs(torch.data(ram), ram:nElement())
     return ram
 end
 
 -- TODO : make sure that the input array is in the correct format
 function Env:_display(obs)
     require 'image'
---    print ("in display")
---    local frame = self:getRgbFromPalette(obs)
     self.win = image.display({image=obs, win=self.win})
 end
 
 -- Generates the observations for the current step.
 function Env:_generateObservations()
---  print("in AleEnv generateObservation")
+--  print("in RleEnv generateObservation")
   
     local obs = self:_createObs()
 --    print ("after create obs config_display= " .. tostring(self.config.display))
@@ -172,7 +166,7 @@ function Env:_generateObservations()
 --      print ("in config display :" .. tostring(self.config.display)  )      
         self:_display(obs)
     end
---      print("in AleEnv generateObservation - after create")
+--      print("in RleEnv generateObservation - after create")
     if self.config.enableRamObs then
         local ram = self:_createRamObs()
         return {obs, ram}
@@ -182,76 +176,76 @@ function Env:_generateObservations()
 end
 
 function Env:saveState()
-    self.ale:saveState()
+    self.rle:saveState()
 end
 
 function Env:loadState()
-    return self.ale:loadState()
+    return self.rle:loadState()
 end
 
 function Env:actions()
-    local nactions = self.ale:numActions()
+    local nactions = self.rle:numActions()
     local actions = torch.IntTensor(nactions)
-    self.ale:actions(torch.data(actions), actions:nElement())
+    self.rle:actions(torch.data(actions), actions:nElement())
     return actions
 end
 
 function Env:lives()
-    return self.ale:lives()
+    return self.rle:lives()
 end
 
 --function Env:saveSnapshot()
---    return self.ale:saveSnapshot()
+--    return self.rle:saveSnapshot()
 --end
 --
 --function Env:restoreSnapshot(snapshot)
---    self.ale:restoreSnapshot(snapshot)
+--    self.rle:restoreSnapshot(snapshot)
 --end
 
 function Env:getScreenWidth()
-  return self.ale:getScreenWidth()
+  return self.rle:getScreenWidth()
 end
 
 function Env:getScreenHeight()
-  return self.ale:getScreenHeight()
+  return self.rle:getScreenHeight()
 end
 
 
 -- Get the value of a setting.
 function Env:getString(key)
-  return self.ale:getString(key)
+  return self.rle:getString(key)
 end
 
 function Env:getInt(key)
-  return self.ale:getInt(key)
+  return self.rle:getInt(key)
 end
 
 function Env:getInt(key)
-  return self.ale:getInt(key)
+  return self.rle:getInt(key)
 end
 
 function Env:getBool(key)
-  return self.ale:getBool(key)
+  return self.rle:getBool(key)
 end
 
 function Env:getFloat(key)
-  return self.ale:getFloat(key)
+  return self.rle:getFloat(key)
 end
 
 -- Set the value of a setting. loadRom() must be called before the
 -- setting will take effect.
 function Env:setString(key, value)
-  self.ale:setString(key, value);
+  self.rle:setString(key, value);
 end
 
 function Env:setInt(key, value)
-  self.ale:setInt(key, value);
+  self.rle:setInt(key, value);
 end
 
 function Env:setBool(key, value)
-  self.ale:setBool(key, value);
+  self.rle:setBool(key, value);
 end
 
 function Env:setFloat(key, value)
-  self.ale:setFloat(key, value);
+  self.rle:setFloat(key, value);
 end

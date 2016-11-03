@@ -1,15 +1,15 @@
-package = 'alewrap'
-version = '0-0'
+package = 'rlewrap'
+version = '1-0'
 
 source = {
-   url = 'git://github.com/nadavbh12/alewrap.git'
+   url = 'git://github.com/nadavbh12/rlewrap.git'
 }
 
 description = {
-  summary = "Alewrap"
+  summary = "Rlewrap"
 }
 
-dependencies = { 'ale','image','paths'}
+dependencies = { 'rle','image','paths'}
 build = {
    type = "command",
    build_command = [[
